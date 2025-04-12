@@ -1,4 +1,6 @@
-const bcrypt = require('bcrypt');
+/* eslint-disable prettier/prettier */
+// const bcrypt = require('bcrypt');
+import bcrypt from 'bcrypt';
 const saltRounds = 10;
 
 export const hashPasswordHelper = async (plainPassword: string) => {

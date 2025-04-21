@@ -9,11 +9,10 @@ import {
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './passport/local-auth.guard';
 import { JwtAuthGuard } from './passport/jwt-auth.guard';
-import { Public } from '@/decorator/customize';
+import { Public, ResponseMessage } from '@/decorator/customize';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { MailerService } from '@nestjs-modules/mailer';
-import * as fs from 'fs';
-import * as path from 'path';
+
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -24,6 +23,7 @@ export class AuthController {
   @Post('login')
   @Public() // For check jwt
   @UseGuards(LocalAuthGuard)
+  @ResponseMessage('Fetch login success')
   handleLogin(@Request() req) {
     return this.authService.login(req.user);
   }

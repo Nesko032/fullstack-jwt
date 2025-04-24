@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { UsersService } from '@/modules/users/users.service';
 import { comparePasswordHelper } from '@/utils/helper';
 import { JwtService } from '@nestjs/jwt';
-import { CreateAuthDto } from './dto/create-auth.dto';
+import { CodeAuthDto, CreateAuthDto } from './dto/create-auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -13,13 +13,12 @@ export class AuthService {
 
   async validateUser(username: string, pass: string): Promise<any> {
     const user = await this.usersService.findByEmail(username);
-    const isValidPassword = await comparePasswordHelper(pass, user.password);
+    if (!user) return null;
 
-    if (!user || !isValidPassword) {
-      return null;
-    } else {
-      return user;
-    }
+    const isValidPassword = await comparePasswordHelper(pass, user.password);
+    if (!isValidPassword) return null;
+
+    return user;
   }
 
   async login(user: any) {
@@ -37,5 +36,9 @@ export class AuthService {
 
   handleRegister = async (registerDto: CreateAuthDto) => {
     return this.usersService.handleRegister(registerDto);
+  };
+
+  checkCode = async (codeDto: CodeAuthDto) => {
+    return this.usersService.handleActive(codeDto);
   };
 }

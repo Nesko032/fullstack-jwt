@@ -6,7 +6,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './schemas/user.schema';
 import { hashPasswordHelper } from '@/utils/helper';
 import aqp from 'api-query-params';
-import { CreateAuthDto } from '@/auth/dto/create-auth.dto';
+import { CodeAuthDto, CreateAuthDto } from '@/auth/dto/create-auth.dto';
 import { v4 as uuidv4 } from 'uuid';
 import dayjs from 'dayjs';
 import { MailerService } from '@nestjs-modules/mailer';
@@ -139,6 +139,30 @@ export class UsersService {
 
     return {
       _id: user._id,
+    };
+  }
+
+  async handleActive(codeDto: CodeAuthDto) {
+    const user = await this.userModel.findOne({
+      _id: codeDto._id,
+      codeId: codeDto.code,
+    });
+
+    if (!user) {
+      throw new BadRequestException('Invalid code or expired code');
+    }
+
+    const isBeforeExpired = dayjs().isBefore(user.codeExpired);
+    if (!isBeforeExpired) {
+      throw new BadRequestException(
+        'This code has expired, please press the button to get another code',
+      );
+    } else {
+      await this.userModel.updateOne({ _id: codeDto._id }, { isActive: true });
+    }
+
+    return {
+      isBeforeExpired,
     };
   }
 }
